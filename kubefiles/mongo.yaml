@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-standalone
+spec:
+  serviceName: mongo-database
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-database
+  template:
+    metadata:
+      labels:
+        app: mongo-database
+        selector: mongodb-standalone
+    spec:
+      containers:
+      - name: mongodb-standalone
+        image: mongo:4.0.8
+        env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            value: admin
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            value: password
+        ports:
+        - name: mongo
+          containerPort: 27017
+        volumeMounts:
+          - name: mongo-persistent-storage
+            mountPath: /data/db
+      volumes:
+        - name: mongo-persistent-storage
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-database
+  labels:
+    app: mongo-database
+spec:
+  ports:
+    - port: 27017
+      targetPort: 27017
+      name: mongo
+      protocol: TCP
+  selector:
+    app: mongo-database
+  type: LoadBalancer

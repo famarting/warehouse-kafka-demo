@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" class="pf-m-redhat-font">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/static/stylesheets/fonts.css" />
+  <!-- Include latest PatternFly CSS via CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/@patternfly/patternfly/patternfly.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css" />
+  <title>WareHouse Stock and Orders</title>
+</head>
+
+<body>
+  <!-- <div class="welcome center">Welcome {{.Name}}, it is {{.Time}}</div> -->
+
+  <div class="pf-c-tabs pf-m-fill" id="filled-with-icons-example">
+    <button class="pf-c-tabs__scroll-button" disabled aria-hidden="true" aria-label="Scroll left">
+      <i class="fas fa-angle-left" aria-hidden="true"></i>
+    </button>
+    <ul class="pf-c-tabs__list">
+      <li class="pf-c-tabs__item">
+        <button class="pf-c-tabs__link" id="add-stock">
+          <span class="pf-c-tabs__item-icon" aria-hidden="true">
+            <i class="fas fa-fas fa-users"></i>
+          </span>
+          <span class="pf-c-tabs__item-text">Add Stock</span>
+        </button>
+      </li>
+      <li class="pf-c-tabs__item">
+        <button class="pf-c-tabs__link" id="create-order">
+          <span class="pf-c-tabs__item-icon" aria-hidden="true">
+            <i class="fas fa-fas fa-box"></i>
+          </span>
+          <span class="pf-c-tabs__item-text">Create Order</span>
+        </button>
+      </li>
+      <li class="pf-c-tabs__item pf-m-current">
+        <button class="pf-c-tabs__link" id="watch-orders">
+          <span class="pf-c-tabs__item-icon" aria-hidden="true">
+            <i class="fas fa-database"></i>
+          </span>
+          <span class="pf-c-tabs__item-text">Watch Orders</span>
+        </button>
+      </li>
+    </ul>
+    <button class="pf-c-tabs__scroll-button" disabled aria-hidden="true" aria-label="Scroll right">
+      <i class="fas fa-angle-right" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <section class="pf-c-tab-content" aria-labelledby="add-stock" id="add-stock" role="tabpanel" tabindex="0" hidden>Add
+    Stock</section>
+  <section class="pf-c-tab-content" aria-labelledby="create-order" id="create-order" role="tabpanel" tabindex="1"
+    hidden>Create Order</section>
+  <section class="pf-c-tab-content" aria-labelledby="watch-orders" id="watch-orders" role="tabpanel" tabindex="2">Watch
+    Orders</section>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/js/patternfly.min.js"></script>
+
+</html>

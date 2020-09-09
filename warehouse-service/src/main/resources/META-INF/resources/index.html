@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Prices</title>
+
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/css/patternfly.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/css/patternfly-additions.min.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Order</h1>
+    
+        <form id="orderForm" class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="itemId">Item id</label>
+                <div class="col-md-6">
+                    <input type="text" id="itemId" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="quantity">Quantity</label>
+                <div class="col-md-6">
+                    <input type="number" id="quantity" class="form-control">
+                </div>
+            </div>
+            <!-- <div class="form-group">
+                <label class="col-md-2 control-label" for="product">Product</label>
+                <div class="col-md-10">
+                    <select id="product">
+                        <option value="frappuccino">Frappuccino</option>
+                        <option value="chai">Chai</option>
+                        <option value="hot-chocolate">Hot Chocolate</option>
+                        <option value="latte">Latte</option>
+                        <option value="espresso">Espresso</option>
+                        <option value="mocha">Mocha</option>
+                    </select>
+                </div>
+            </div> -->
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <button id="order-button" type="submit" class="btn btn-primary">Place order</button>
+                </div>
+            </div>
+        </form>
+    
+    </div>
+    
+    <div class="container" id="order-result-message"></div>
+
+    <div class="container">
+
+        <h1>Add stock</h1>
+    
+        <form id="stockForm" class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="itemId">Item id</label>
+                <div class="col-md-6">
+                    <input type="text" id="itemId" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="quantity">Quantity</label>
+                <div class="col-md-6">
+                    <input type="number" id="quantity" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <button id="stock-button" type="submit" class="btn btn-primary">Increment stock</button>
+                </div>
+            </div>
+        </form>
+    
+    </div>
+
+    <div class="container">
+
+        <h1>Processed orders stream</h1>
+
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Processing Timestamp</th>
+                    <th>Item id</th>
+                    <th>Quantity</th>
+                    <th>Processed By</th>
+                    <th>Approved</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+
+    </div>
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/js/patternfly.min.js"></script>
+<script>
+
+    $("#orderForm").submit(function(event){
+        const order = {
+            quantity: parseInt($("#orderForm #quantity").val()),
+            itemId: $("#orderForm #itemId").val()
+        };
+
+        $("#order-button").addClass("disabled").attr("disabled", true);
+
+        event.preventDefault();
+        const post_url = "/orders";
+        const request_method = "POST";
+        $.ajax({
+            url : post_url,
+            type: request_method,
+            data : JSON.stringify(order),
+            contentType: 'application/json',
+            cache: false
+        }).done(function(response){
+            $("#order-button").removeClass("disabled").removeAttr("disabled");
+            alert("Order placed!");
+            $("#orderForm").trigger("reset");
+        }).fail(function(err) {
+            $("#order-result-message").append("<div class='alert alert-danger alert-dismissable'><button type='button' class='close' data-dismiss='alert' aria-label='Close'><span class='pficon pficon-close'></span></button><span class='pficon pficon-error-circle-o'></span><strong>Error</strong>" + err.responseText + "</div>");
+            $("#order-button").removeClass("disabled").removeAttr("disabled");
+            console.error(err);
+        });
+    });
+
+    $("#stockForm").submit(function(event){
+        const order = {
+            quantity: parseInt($("#stockForm #quantity").val()),
+            itemId: $("#stockForm #itemId").val()
+        };
+
+        $("#stock-button").addClass("disabled").attr("disabled", true);
+
+        event.preventDefault();
+        const post_url = "/warehouse/stocks";
+        const request_method = "POST";
+        $.ajax({
+            url : post_url,
+            type: request_method,
+            data : JSON.stringify(order),
+            contentType: 'application/json',
+            cache: false
+        }).done(function(response){
+            $("#stock-button").removeClass("disabled").removeAttr("disabled");
+            alert("Stock incremented!");
+            $("#stockForm").trigger("reset");
+        }).fail(function(err) {
+            $("#stock-button").removeClass("disabled").removeAttr("disabled");
+            console.error(err);
+        });
+    });
+
+    $(function () {
+        const source = new EventSource("/warehouse/orders");
+        source.onmessage = function (e) {
+            if (e.data === "{}") {
+                return;
+            }
+            console.log(e);
+            $("tbody").prepend(line(JSON.parse(e.data)));
+
+        };
+    });
+
+    function line(order) {
+        const id = order.orderId;
+        const itemId = order.itemId;
+        const quantity = order.quantity;
+        const processedBy = order.processedBy;
+        const approved = order.approved;
+        let reason = "";
+        if (order.reason) {
+            reason = order.reason;
+        }
+        return "<tr id='" + id + "'>" +
+            "<td>" + order.processingTimestamp + "</td>" +
+            "<td>" + itemId + "</td>" +
+            "<td>" + quantity + "</td>" +
+            "<td>" + processedBy + "</td>" +
+            "<td>" + approved + "</td>" +
+            "<td>" + reason + "</td></tr>";
+    }
+</script>
+
+</html>
