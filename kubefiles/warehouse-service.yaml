@@ -5,6 +5,7 @@ metadata:
   labels:
     app: warehouse-service
   name: warehouse-service
+  namespace: warehouse
 spec:
   # replicas: ${REPLICAS}
   replicas: 1
@@ -51,6 +52,7 @@ metadata:
   labels:
     app: warehouse-service
   name: warehouse-service
+  namespace: warehouse
 spec:
   ports:    
   - port: 8080
@@ -67,8 +69,38 @@ metadata:
   labels:
     app: warehouse-service
   name: warehouse-service
+  namespace: warehouse
 spec:
   to:
     kind: Service
     name: warehouse-service
     weight: 100
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: warehouse 
+  namespace: warehouse
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: warehouse
+rules:
+- apiGroups: [""]
+  resources: ["pods","nodes"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: warehouse
+  namespace: warehouse 
+subjects:
+- kind: ServiceAccount 
+  name: warehouse
+  namespace: warehouse 
+roleRef:
+  kind: ClusterRole
+  name: warehouse 
+  apiGroup: rbac.authorization.k8s.io

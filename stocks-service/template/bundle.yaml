@@ -5,6 +5,7 @@ metadata:
   labels:
     app: ${SERVICE_NAME}
   name: ${SERVICE_NAME}
+  namespace: ${NAMESPACE}
 spec:
   # replicas: ${REPLICAS}
   replicas: 1
@@ -51,6 +52,7 @@ metadata:
   labels:
     app: ${SERVICE_NAME}
   name: ${SERVICE_NAME}
+  namespace: ${NAMESPACE}
 spec:
   ports:    
   - port: 8081
@@ -67,6 +69,7 @@ metadata:
   labels:
     app: ${SERVICE_NAME}
   name: ${SERVICE_NAME}
+  namespace: ${NAMESPACE}
 spec:
   to:
     kind: Service

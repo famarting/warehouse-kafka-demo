@@ -3,7 +3,7 @@ package io.famartin.warehouse.common;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
-public class StockRecord {
+public class StockRecord implements Comparable<StockRecord>{
     
     private String itemId;
     private Integer quantity;
@@ -84,6 +84,11 @@ public class StockRecord {
         return "StockRecord [action=" + action + ", approved=" + approved + ", error=" + error + ", itemId=" + itemId
                 + ", message=" + message + ", originalRequest=" + originalRequest + ", quantity=" + quantity
                 + ", timestamp=" + timestamp + "]";
+    }
+
+    @Override
+    public int compareTo(StockRecord other) {
+        return itemId.compareTo(other.itemId);
     }
 
 }

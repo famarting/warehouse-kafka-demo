@@ -3,6 +3,7 @@ package io.famartin.warehouse;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,6 +26,10 @@ public class StocksStorage {
     String storageType;
 
     Object lock = new Object();
+
+    public Stream<StockRecord> streamAll() {
+        return stocksRepo.streamAll();
+    }
 
     public Integer addStock(String itemId, int quantity) {
         if (storageType.equals("MEMORY")) {

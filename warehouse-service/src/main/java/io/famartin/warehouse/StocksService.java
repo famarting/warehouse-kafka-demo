@@ -1,5 +1,6 @@
 package io.famartin.warehouse;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -29,6 +30,10 @@ public class StocksService {
     @Inject
     @RestClient
     StocksClient stocksClient;
+
+    public List<StockRecord> status() {
+        return stocksClient.status();
+    }
 
     public Uni<StockRecord> addStock(String requestId, String itemId, int quantity) {
         return send(requestId, itemId, quantity, "ADD");

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Prices</title>
+    <title>Warehouse UI</title>
 
     <link rel="stylesheet" type="text/css"
         href="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/css/patternfly.min.css">
@@ -12,6 +12,11 @@
 </head>
 
 <body>
+    <div class="container" id="cloud-info">
+        <div class="cloudprovider">Cloud: </div>
+        <div class="zone">Zone: </div>
+        <div class="pod">Pod: </div>
+    </div>
 
     <div class="container">
 
@@ -82,7 +87,7 @@
 
     <div class="container">
 
-        <h1>Warehouse status</h1>
+        <h1>Warehouse events</h1>
 
         <table class="table table-striped">
             <thead class="thead-dark">
@@ -95,17 +100,50 @@
                     <th>Message</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="eventsTable">
 
             </tbody>
         </table>
 
     </div>
+
+
+    <div class="container">
+
+        <h1>Stock status</h1>
+
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Item id</th>
+                    <th>Stock</th>
+                </tr>
+            </thead>
+            <tbody id="stocksTable">
+
+            </tbody>
+        </table>
+
+    </div>
+
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/js/patternfly.min.js"></script>
 <script>
+
+    $.ajax({
+        contentType: 'application/json',
+        type: "GET",
+        url: "/warehouse/cloudmeta",
+        timeout: 30000, // wait no more than 30 seconds
+    }).done(function(response){
+        $(".cloudprovider").append("<b>" + response.cloud + "</b>");
+        $(".zone").append("<b>" + response.zone + "</b>");
+        $(".pod").append("<b>" + response.pod + "</b>");
+    }).fail(function(err) {
+        console.error(err);
+    });
 
     $("#orderForm").submit(function(event){
         const order = {
@@ -162,6 +200,33 @@
         });
     });
 
+    let stocks = {};
+
+    $(function () {
+        $.ajax({
+            contentType: 'application/json',
+            type: "GET",
+            url: "/warehouse/stocks",
+            timeout: 30000, // wait no more than 30 seconds
+        }).done(function(response){
+            response.forEach(element => {
+                $("#stocksTable").append(stockLine(element));
+            });
+        }).fail(function(err) {
+            console.error(err);
+        });
+    });
+
+    function stockLine(event) {
+        stocks[event.itemId] = event;
+        const id = event.itemId;
+        const itemId = event.itemId;
+        const quantity = event.quantity;
+        return "<tr id='" + id + "'>" +
+            "<td>" + itemId + "</td>" +
+            "<td>" + quantity + "</td></tr>";
+    }
+
     $(function () {
         const source = new EventSource("/warehouse/status");
         source.onmessage = function (e) {
@@ -169,8 +234,17 @@
                 return;
             }
             console.log(e);
-            $("tbody").prepend(line(JSON.parse(e.data)));
-
+            let event = JSON.parse(e.data);
+            $("#eventsTable").prepend(line(event));
+            if (event.eventType === "STOCK") {
+                if (stocks[event.itemId] !== undefined){
+                    //update
+                    $("#stocksTable #"+event.itemId).replaceWith(stockLine(event));
+                } else {
+                    //append
+                    $("#stocksTable").prepend(stockLine(event));
+                }
+            }
         };
     });
 

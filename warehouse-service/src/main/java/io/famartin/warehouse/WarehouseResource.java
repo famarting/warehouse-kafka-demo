@@ -1,6 +1,7 @@
 package io.famartin.warehouse;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -27,6 +28,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.reactivestreams.Publisher;
 
+import io.fabric8.kubernetes.api.model.Node;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.famartin.warehouse.common.EventsService;
 import io.famartin.warehouse.common.OrderRecord;
 import io.famartin.warehouse.common.StockRecord;
 import io.quarkus.runtime.StartupEvent;
@@ -118,6 +122,13 @@ public class WarehouseResource {
         // return Flowable.fromPublisher(orders).map(JsonObject::encode);
     }
 
+    @GET
+    @Path("/stocks")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<StockRecord> currentStocks() {
+        return stocks.status();
+    }
+
     @POST
     @Path("/stocks")
     @Produces(MediaType.APPLICATION_JSON)
@@ -126,4 +137,25 @@ public class WarehouseResource {
         return stocks.addStock(UUID.randomUUID().toString(), request.getItemId(), request.getQuantity());
     }
 
+    @Inject
+    KubernetesClient kubernetesClient;
+    @Inject
+    EventsService eventsService;
+
+    @GET
+    @Path("/cloudmeta")
+    @Produces(MediaType.APPLICATION_JSON)
+    public JsonObject getCloudMetadata() {
+        // String nodeName = System.getenv("CURRENT_NODE_NAME");
+        Node node = kubernetesClient.nodes().list().getItems().get(0);
+        String providerId = node.getSpec().getProviderID();
+        if (providerId != null) {
+            providerId = providerId.split(":")[0];
+        }
+        String zone = node.getMetadata().getLabels().get("failure-domain.beta.kubernetes.io/zone");
+        if (zone != null) {
+            zone = zone.toLowerCase();
+        }
+        return new JsonObject().put("cloud", providerId).put("zone", zone).put("pod", eventsService.getServiceName());
+    }
 }

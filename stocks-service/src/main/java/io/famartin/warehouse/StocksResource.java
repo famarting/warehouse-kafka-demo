@@ -1,10 +1,13 @@
 package io.famartin.warehouse;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -16,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import io.famartin.warehouse.common.EventsService;
 import io.famartin.warehouse.common.StockRecord;
 import io.smallrye.mutiny.tuples.Tuple2;
-import io.vertx.core.json.JsonObject;
 
 @ApplicationScoped
 @Path("/stocks")
@@ -29,6 +31,19 @@ public class StocksResource {
 
     @Inject
     StocksStorage stocksStorage;
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<StockRecord> status() {
+        return stocksStorage.streamAll().map(r -> {
+            StockRecord s = new StockRecord();
+            s.setItemId(r.itemId);
+            s.setQuantity(r.stock);
+            return s;
+        })
+        .sorted()
+        .collect(Collectors.toList());
+    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

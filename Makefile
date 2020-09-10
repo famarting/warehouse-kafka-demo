@@ -36,7 +36,7 @@ install-strimzi:
 	sed -i 's/namespace: .*/namespace: warehouse/' strimzi-cluster-operator-0.18.0.yaml
 	kubectl apply -f strimzi-cluster-operator-0.18.0.yaml -n warehouse
 
-release: deployment_bundle
-	mv deployment_bundle/* kubefiles/
+release:
+	cp deployment_bundle/* kubefiles/
 
 .PHONY: login_container_registry clean_deployment_bundle prepare_deployment_bundle deployment_bundle copy_bundles container $(SERVICES)

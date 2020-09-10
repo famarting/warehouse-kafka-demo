@@ -22,6 +22,10 @@ spec:
         imagePullPolicy: Always
         name: ${SERVICE_NAME}
         env:
+          - name: CURRENT_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
           - name: KAFKA_BOOTSTRAP_SERVERS
             value: warehouse-kafka-kafka-bootstrap:9092
           - name: POD_NAME
@@ -33,14 +37,14 @@ spec:
         readinessProbe:
           httpGet:
             path: /health/ready
-            port: 8082
+            port: 8080
           initialDelaySeconds: 3
           periodSeconds: 5
           timeoutSeconds: 7
         livenessProbe:
           httpGet:
             path: /health/live
-            port: 8082
+            port: 8080
           initialDelaySeconds: 1
           periodSeconds: 15
           timeoutSeconds: 7
@@ -55,9 +59,9 @@ metadata:
   namespace: ${NAMESPACE}
 spec:
   ports:    
-  - port: 8082
+  - port: 8080
     protocol: TCP
-    targetPort: 8082
+    targetPort: 8080
     name: http
   selector:
     app: ${SERVICE_NAME}
@@ -75,3 +79,32 @@ spec:
     kind: Service
     name: ${SERVICE_NAME}
     weight: 100
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: warehouse 
+  namespace: ${NAMESPACE}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: warehouse
+rules:
+- apiGroups: [""]
+  resources: ["pods","nodes"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: warehouse
+  namespace: ${NAMESPACE} 
+subjects:
+- kind: ServiceAccount 
+  name: warehouse
+  namespace: ${NAMESPACE} 
+roleRef:
+  kind: ClusterRole
+  name: warehouse 
+  apiGroup: rbac.authorization.k8s.io

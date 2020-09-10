@@ -54,5 +54,6 @@ deployment_bundle: clean_deployment_bundle prepare_deployment_bundle
 	cp $(DEPLOYMENT_TEMPLATE) deployment_bundle/$(PROJECT_NAME).yaml
 	sed -i 's,$${CONTAINER_IMAGE},$(PROJECT_TAG_NAME),g' deployment_bundle/$(PROJECT_NAME).yaml
 	sed -i 's,$${SERVICE_NAME},$(PROJECT_NAME),g' deployment_bundle/$(PROJECT_NAME).yaml
+	sed -i 's,$${NAMESPACE},warehouse,g' deployment_bundle/$(PROJECT_NAME).yaml
 
 .PHONY: clean_deployment_bundle prepare_deployment_bundle deployment_bundle container_build_jvm container_build_native $(CONTAINER_TARGETS) dev build_jar build_native container container_native

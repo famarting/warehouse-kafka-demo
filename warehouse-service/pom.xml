@@ -37,6 +37,11 @@
     
     <dependency>
       <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-kubernetes-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-reactive-messaging</artifactId>
     </dependency>
     <dependency>

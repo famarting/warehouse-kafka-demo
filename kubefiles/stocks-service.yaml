@@ -5,6 +5,7 @@ metadata:
   labels:
     app: stocks-service
   name: stocks-service
+  namespace: warehouse
 spec:
   # replicas: ${REPLICAS}
   replicas: 1
@@ -51,6 +52,7 @@ metadata:
   labels:
     app: stocks-service
   name: stocks-service
+  namespace: warehouse
 spec:
   ports:    
   - port: 8081
@@ -67,6 +69,7 @@ metadata:
   labels:
     app: stocks-service
   name: stocks-service
+  namespace: warehouse
 spec:
   to:
     kind: Service
