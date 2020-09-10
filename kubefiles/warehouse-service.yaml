@@ -17,6 +17,7 @@ spec:
       labels:
         app: warehouse-service
     spec:
+      serviceAccount: warehouse
       containers:
       - image: quay.io/famargon/warehouse-service-kafka:latest
         imagePullPolicy: Always
