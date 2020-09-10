@@ -33,10 +33,6 @@ public class StocksService {
     }
  
     private Uni<StockRecord> send(String requestId, String itemId, int quantity, String action) {
-        // JsonObject body = new JsonObject();
-        // body.put("item-id", itemId);
-        // body.put("quantity", quantity);
-        // body.put("action", action);
         StockRecord record = new StockRecord();
         record.setItemId(itemId);
         record.setQuantity(quantity);

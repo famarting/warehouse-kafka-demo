@@ -1,5 +1,6 @@
 package io.famartin.warehouse;
 
+import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.CompletionStage;
 
@@ -39,11 +40,10 @@ public class OrdersService {
     @Incoming("orders")
     public Uni<Void> processOrder(OrderRecord order) {
         events.sendEvent("Processing order "+order.getOrderId());
-        return stocks.requestStock(order.getOrderId(),
-                order.getItemId(), order.getQuantity())
+        return stocks.requestStock(order.getOrderId(), order.getItemId(), order.getQuantity())
             .map(result -> {
                 longRunningOperation();
-                order.setProcessingTimestamp(result.getTimestamp());
+                order.setProcessingTimestamp(Instant.now().toString());
                 order.setProcessedBy(events.getServiceName());
                 if (result.getError() != null) {
                     order.setError(result.getError());

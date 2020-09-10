@@ -50,9 +50,48 @@ public class WarehouseResource {
     @Inject
     StocksService stocks;
 
+    private Jsonb json = JsonbBuilder.create();
+
     Multi<String> getPingStream() {
         return Multi.createFrom().ticks().every(Duration.ofSeconds(10))
-                .onItem().apply(x -> "{}");
+                .onItem().transform(x -> "{}");
+    }
+
+    @GET
+    @Path("/status")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    public Publisher<String> all() {
+        return Multi.createBy().merging()
+        .streams(
+            events
+                .filter(e -> e.getString("type", "").equals("stock"))
+                .map(e -> {
+                    WarehouseEventRecord r = new WarehouseEventRecord();
+                    r.setEventId(UUID.randomUUID().toString());
+                    r.setEventType("STOCK");
+                    r.setItemId(e.getJsonObject("event").getString("itemId"));
+                    r.setQuantity(e.getJsonObject("event").getInteger("stock"));
+                    r.setProcessedBy(e.getString("from"));
+                    r.setTimestamp(e.getString("timestamp"));
+                    r.setMessage("Stock updated");
+                    return r;
+                })
+                .map(json::toJson),
+            orders
+                .map(o -> {
+                    WarehouseEventRecord r = new WarehouseEventRecord();
+                    r.setEventId(o.getOrderId());
+                    r.setEventType("ORDER");
+                    r.setItemId(o.getItemId());
+                    r.setQuantity(o.getQuantity());
+                    r.setProcessedBy(o.getProcessedBy());
+                    r.setTimestamp(o.getProcessingTimestamp());
+                    r.setMessage(o.getApproved() ? "Approved" : "Rejected. "+o.getReason());
+                    return r;
+                })
+                .map(json::toJson),
+            getPingStream()
+        );
     }
 
     @GET
@@ -66,8 +105,6 @@ public class WarehouseResource {
         );
         // return Flowable.fromPublisher(events).map(JsonObject::encode);
     }
-
-    private Jsonb json = JsonbBuilder.create();
 
     @GET
     @Path("/orders")

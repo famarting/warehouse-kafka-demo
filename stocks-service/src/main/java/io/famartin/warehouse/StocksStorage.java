@@ -83,7 +83,7 @@ public class StocksStorage {
                         return Tuple2.of(false, recordOpt.get().stock);
                     }
                 } else {
-                    return Tuple2.of(false, 0);
+                    return Tuple2.of(false, null);
                 }
             }
         }

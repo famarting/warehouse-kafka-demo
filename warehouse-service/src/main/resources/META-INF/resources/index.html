@@ -82,16 +82,16 @@
 
     <div class="container">
 
-        <h1>Processed orders stream</h1>
+        <h1>Warehouse status</h1>
 
         <table class="table table-striped">
             <thead class="thead-dark">
                 <tr>
-                    <th>Processing Timestamp</th>
+                    <th>Event Timestamp</th>
+                    <th>Event type</th>
                     <th>Item id</th>
                     <th>Quantity</th>
                     <th>Processed By</th>
-                    <th>Approved</th>
                     <th>Message</th>
                 </tr>
             </thead>
@@ -126,7 +126,7 @@
             cache: false
         }).done(function(response){
             $("#order-button").removeClass("disabled").removeAttr("disabled");
-            alert("Order placed!");
+            // alert("Order placed!");
             $("#orderForm").trigger("reset");
         }).fail(function(err) {
             $("#order-result-message").append("<div class='alert alert-danger alert-dismissable'><button type='button' class='close' data-dismiss='alert' aria-label='Close'><span class='pficon pficon-close'></span></button><span class='pficon pficon-error-circle-o'></span><strong>Error</strong>" + err.responseText + "</div>");
@@ -154,7 +154,7 @@
             cache: false
         }).done(function(response){
             $("#stock-button").removeClass("disabled").removeAttr("disabled");
-            alert("Stock incremented!");
+            // alert("Stock incremented!");
             $("#stockForm").trigger("reset");
         }).fail(function(err) {
             $("#stock-button").removeClass("disabled").removeAttr("disabled");
@@ -163,7 +163,7 @@
     });
 
     $(function () {
-        const source = new EventSource("/warehouse/orders");
+        const source = new EventSource("/warehouse/status");
         source.onmessage = function (e) {
             if (e.data === "{}") {
                 return;
@@ -174,23 +174,23 @@
         };
     });
 
-    function line(order) {
-        const id = order.orderId;
-        const itemId = order.itemId;
-        const quantity = order.quantity;
-        const processedBy = order.processedBy;
-        const approved = order.approved;
-        let reason = "";
-        if (order.reason) {
-            reason = order.reason;
+    function line(event) {
+        const id = event.eventId;
+        const eventType = event.eventType;
+        const itemId = event.itemId;
+        const quantity = event.quantity;
+        const processedBy = event.processedBy;
+        let message = "";
+        if (event.message) {
+            message = event.message;
         }
         return "<tr id='" + id + "'>" +
-            "<td>" + order.processingTimestamp + "</td>" +
+            "<td>" + event.timestamp + "</td>" +
+            "<td>" + eventType + "</td>" +
             "<td>" + itemId + "</td>" +
             "<td>" + quantity + "</td>" +
             "<td>" + processedBy + "</td>" +
-            "<td>" + approved + "</td>" +
-            "<td>" + reason + "</td></tr>";
+            "<td>" + message + "</td></tr>";
     }
 </script>
 

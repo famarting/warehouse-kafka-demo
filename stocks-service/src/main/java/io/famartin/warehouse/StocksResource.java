@@ -55,14 +55,13 @@ public class StocksResource {
                         }
                         Integer result = substractResult.getItem2();
                         if (result == null) {
-                            response.setApproved(false);
-                            response.setMessage("There is not stock for that item");
-                            response.setOriginalRequest(request.toString());
+                            response.setMessage("There is no stock for that item");
                         } else if (result == 0) {
                             events.sendEvent("Item "+itemId+" ran out of stock");
-                            events.sendStockEvent(itemId, result);
                         } else {
                             events.sendEvent("Stock updated, item: "+itemId+" quantity: "+result);
+                        }
+                        if (response.getApproved()) {
                             events.sendStockEvent(itemId, result);
                         }
                         break;

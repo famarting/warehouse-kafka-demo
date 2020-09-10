@@ -27,7 +27,7 @@ public class EventsService {
 
     public String getServiceName() {
         return Optional.ofNullable(podName)
-            .orElseGet(() -> appName + UUID.randomUUID().toString());
+            .orElseGet(() -> appName + "-" + UUID.randomUUID().toString());
     }
 
     @Inject
