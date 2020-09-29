@@ -28,8 +28,20 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-          - name: MONGO_CONN_STR
-            value: mongodb://admin:password@mongo-database:27017
+          - name: MONGO_USER
+            value: admin
+          - name: MONGO_PWD
+            value: password
+          - name: MONGO_HOSTS
+            value: mongo-database:27017
+          - name: MONGO_TLS
+            value: false
+          - name: MONGO_TLS_INSECURE
+            value: false
+          - name: MONGO_REPLICASET
+            value: rs0
+          - name: MONGO_AUTHSOURCE
+            value: warehouse
         readinessProbe:
           httpGet:
             path: /health/ready
