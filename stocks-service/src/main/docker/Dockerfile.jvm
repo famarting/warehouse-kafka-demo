@@ -15,8 +15,14 @@
 #
 ###
 FROM fabric8/java-alpine-openjdk8-jre
+# FROM registry.redhat.io/ubi8/openjdk-8
 ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV AB_ENABLED=jmx_exporter
 COPY target/lib/* /deployments/lib/
 COPY target/*-runner.jar /deployments/app.jar
-ENTRYPOINT [ "/deployments/run-java.sh" ]
+COPY entrypoint.sh /deployments/entrypoint.sh
+# COPY CARoot.pem /cachain/ca.pem
+# USER 0
+# RUN keytool -importcert -keystore /etc/pki/java/cacerts -alias rh-ca -storepass changeit -file /cachain/ca.pem -noprompt
+# ENTRYPOINT [ "/deployments/run-java.sh" ]
+ENTRYPOINT [ "/deployments/entrypoint.sh" ]

@@ -51,9 +51,15 @@
       <artifactId>quarkus-smallrye-health</artifactId>
     </dependency>
 
-    <dependency>
+    <!-- <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-mongodb-panache</artifactId>
+    </dependency> -->
+
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-sync</artifactId>
+      <version>4.1.0</version>
     </dependency>
   </dependencies>
 
