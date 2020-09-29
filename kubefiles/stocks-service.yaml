@@ -29,15 +29,15 @@ spec:
               fieldRef:
                 fieldPath: metadata.name
           - name: MONGO_USER
-            value: admin
+            value: bliky
           - name: MONGO_PWD
-            value: password
+            value: pinky
           - name: MONGO_HOSTS
-            value: mongo-database:27017
+            value: mongo-warehouse-demo.apps.aws-managed-dublin-pro.8391.sandbox956.opentlc.com:443,mongo-warehouse-demo.apps.openshift4.openshift4.dev:443,mongo-warehouse-demo.apps.gcp-managed-iowa-pro.clusters.ocp4-labs.com:443
           - name: MONGO_TLS
-            value: false
+            value: 'true'
           - name: MONGO_TLS_INSECURE
-            value: false
+            value: 'true'
           - name: MONGO_REPLICASET
             value: rs0
           - name: MONGO_AUTHSOURCE
@@ -56,7 +56,7 @@ spec:
           initialDelaySeconds: 1
           periodSeconds: 15
           timeoutSeconds: 7
-        terminationGracePeriodSeconds: 30
+        # terminationGracePeriodSeconds: 30
 ---
 apiVersion: v1
 kind: Service
@@ -75,15 +75,15 @@ spec:
     app: stocks-service
   type: ClusterIP
 ---
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  labels:
-    app: stocks-service
-  name: stocks-service
-  namespace: warehouse
-spec:
-  to:
-    kind: Service
-    name: stocks-service
-    weight: 100
+# apiVersion: route.openshift.io/v1
+# kind: Route
+# metadata:
+#   labels:
+#     app: stocks-service
+#   name: stocks-service
+#   namespace: warehouse
+# spec:
+#   to:
+#     kind: Service
+#     name: stocks-service
+#     weight: 100
