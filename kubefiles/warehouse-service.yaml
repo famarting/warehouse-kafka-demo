@@ -19,7 +19,7 @@ spec:
     spec:
       serviceAccount: warehouse
       containers:
-      - image: quay.io/famargon/warehouse-service-kafka:dev
+      - image: quay.io/famargon/warehouse-service-kafka:latest
         imagePullPolicy: Always
         name: warehouse-service
         env:

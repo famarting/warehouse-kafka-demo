@@ -18,7 +18,7 @@ spec:
         app: stocks-service
     spec:
       containers:
-      - image: quay.io/famargon/stocks-service-kafka:dev
+      - image: quay.io/famargon/stocks-service-kafka:latest
         imagePullPolicy: Always
         name: stocks-service
         env:

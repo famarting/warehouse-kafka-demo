@@ -18,7 +18,7 @@ spec:
         app: orders-service
     spec:
       containers:
-      - image: quay.io/famargon/orders-service-kafka:dev
+      - image: quay.io/famargon/orders-service-kafka:latest
         imagePullPolicy: Always
         name: orders-service
         env:
