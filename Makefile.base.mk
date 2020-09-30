@@ -5,7 +5,8 @@ PROJECT_NAME=$(shell realpath --relative-to="$(realpath $(TOPDIR))" "$(shell pwd
 
 CONTAINER_TARGETS = container_tag container_push
 
-TAG ?= latest
+# TAG ?= latest
+TAG ?= dev
 PROJECT_TAG_NAME = $(CONTAINER_REGISTRY)/$(ORG_NAME)/$(PROJECT_NAME)-kafka:$(TAG)
 
 container: build_jar container_build_jvm $(CONTAINER_TARGETS)

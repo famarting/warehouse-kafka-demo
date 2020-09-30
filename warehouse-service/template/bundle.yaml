@@ -45,7 +45,6 @@ spec:
           initialDelaySeconds: 1
           periodSeconds: 15
           timeoutSeconds: 7
-        terminationGracePeriodSeconds: 30
 ---
 apiVersion: v1
 kind: Service

@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
-if [ -f "/cachain/ca.pem" ]; then
-    keytool -importcert -keystore /etc/pki/java/cacerts -alias rh-ca -storepass changeit -file /cachain/ca.pem -noprompt
+if [ -f "/var/tmp/ca.pem" ]; then
+    keytool -importcert -keystore /etc/ssl/certs/java/cacerts -alias rh-ca -storepass changeit -file /var/tmp/ca.pem -noprompt
 fi
 
-./deployments/run-java.sh
+exec /deployments/run-java.sh

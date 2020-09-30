@@ -19,7 +19,7 @@ spec:
     spec:
       serviceAccount: warehouse
       containers:
-      - image: quay.io/famargon/warehouse-service-kafka:latest
+      - image: quay.io/famargon/warehouse-service-kafka:dev
         imagePullPolicy: Always
         name: warehouse-service
         env:
@@ -45,7 +45,6 @@ spec:
           initialDelaySeconds: 1
           periodSeconds: 15
           timeoutSeconds: 7
-        terminationGracePeriodSeconds: 30
 ---
 apiVersion: v1
 kind: Service

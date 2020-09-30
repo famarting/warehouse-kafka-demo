@@ -131,140 +131,197 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/js/patternfly.min.js"></script>
 <script>
 
+    let setupweb = function () {
+        $("#orderForm").submit(function(event){
+            const order = {
+                quantity: parseInt($("#orderForm #quantity").val()),
+                itemId: $("#orderForm #itemId").val()
+            };
+
+            $("#order-button").addClass("disabled").attr("disabled", true);
+
+            event.preventDefault();
+            const post_url = "/orders";
+            const request_method = "POST";
+            $.ajax({
+                url : post_url,
+                type: request_method,
+                data : JSON.stringify(order),
+                contentType: 'application/json',
+                cache: false,
+                timeout: 5000,
+            }).done(function(response){
+                $("#order-button").removeClass("disabled").removeAttr("disabled");
+                // alert("Order placed!");
+                $("#orderForm").trigger("reset");
+            }).fail(function(err) {
+                $("#order-result-message").append("<div class='alert alert-danger alert-dismissable'><button type='button' class='close' data-dismiss='alert' aria-label='Close'><span class='pficon pficon-close'></span></button><span class='pficon pficon-error-circle-o'></span><strong>Error</strong>" + err.responseText + "</div>");
+                $("#order-button").removeClass("disabled").removeAttr("disabled");
+                console.error(err);
+            });
+        });
+
+        let stocks = {};
+
+        let updateStocksTable = function () {
+            $.ajax({
+                contentType: 'application/json',
+                type: "GET",
+                url: "/warehouse/stocks",
+                timeout: 5000, // wait no more than 30 seconds
+            }).done(function(response){
+                response.forEach(event => {
+                    // $("#stocksTable").append(stockLine(element));
+                    if (stocks[event.itemId] !== undefined){
+                        //update
+                        $("#stocksTable #"+event.itemId).replaceWith(stockLine(event));
+                    } else {
+                        //append
+                        $("#stocksTable").prepend(stockLine(event));
+                    }
+                });
+            }).fail(function(err) {
+                console.error(err);
+            });
+        }
+
+        $("#stockForm").submit(function(event){
+            const order = {
+                quantity: parseInt($("#stockForm #quantity").val()),
+                itemId: $("#stockForm #itemId").val()
+            };
+
+            $("#stock-button").addClass("disabled").attr("disabled", true);
+
+            event.preventDefault();
+            const post_url = "/warehouse/stocks";
+            const request_method = "POST";
+            $.ajax({
+                url : post_url,
+                type: request_method,
+                data : JSON.stringify(order),
+                contentType: 'application/json',
+                cache: false,
+                timeout: 5000
+            }).done(function(response){
+                $("#stock-button").removeClass("disabled").removeAttr("disabled");
+                // alert("Stock incremented!");
+                $("#stockForm").trigger("reset");
+                updateStocksTable()
+            }).fail(function(err) {
+                $("#stock-button").removeClass("disabled").removeAttr("disabled");
+                console.error(err);
+            });
+        });
+
+
+        updateStocksTable()
+        setInterval(() => updateStocksTable(), 2000)
+
+        function stockLine(event) {
+            stocks[event.itemId] = event;
+            const id = event.itemId;
+            const itemId = event.itemId;
+            const quantity = event.quantity;
+            return "<tr id='" + id + "'>" +
+                "<td>" + itemId + "</td>" +
+                "<td>" + quantity + "</td></tr>";
+        }
+
+        $(function () {
+
+            //polling
+            let statusCall = function() {
+                $.ajax({
+                    type: "GET",
+                    url: "/warehouse/status/aaa",
+                    timeout: 10000, // wait no more than 30 seconds
+                }).done(function(data){
+                    console.log(data)
+                    data.forEach(event => {
+                        $("#eventsTable").prepend(line(event));
+                        if (event.eventType === "STOCK") {
+                            if (stocks[event.itemId] !== undefined){
+                                //update
+                                $("#stocksTable #"+event.itemId).replaceWith(stockLine(event));
+                            } else {
+                                //append
+                                $("#stocksTable").prepend(stockLine(event));
+                            }
+                        }
+                    })
+                }).fail(function(err) {
+                    console.error(err);
+                });
+            }
+
+            statusCall()
+            setInterval(() => statusCall(), 2000)
+            
+
+            //sse
+            // const source = new EventSource("/warehouse/status");
+            // source.onmessage = function (e) {
+            //     if (e.data === "{}") {
+            //         return;
+            //     }
+            //     console.log(e);
+            //     let event = JSON.parse(e.data);
+            //     $("#eventsTable").prepend(line(event));
+            //     if (event.eventType === "STOCK") {
+            //         if (stocks[event.itemId] !== undefined){
+            //             //update
+            //             $("#stocksTable #"+event.itemId).replaceWith(stockLine(event));
+            //         } else {
+            //             //append
+            //             $("#stocksTable").prepend(stockLine(event));
+            //         }
+            //     }
+            // };
+        });
+
+        function line(event) {
+            const id = event.eventId;
+            const eventType = event.eventType;
+            const itemId = event.itemId;
+            const quantity = event.quantity;
+            const processedBy = event.processedBy;
+            let message = "";
+            if (event.message) {
+                message = event.message;
+            }
+            return "<tr id='" + id + "'>" +
+                "<td>" + event.timestamp + "</td>" +
+                "<td>" + eventType + "</td>" +
+                "<td>" + itemId + "</td>" +
+                "<td>" + quantity + "</td>" +
+                "<td>" + processedBy + "</td>" +
+                "<td>" + message + "</td></tr>";
+        }
+    }
+
     $.ajax({
         contentType: 'application/json',
         type: "GET",
         url: "/warehouse/cloudmeta",
-        timeout: 30000, // wait no more than 30 seconds
+        timeout: 5000, // wait no more than 30 seconds
     }).done(function(response){
         $(".cloudprovider").append("<b>" + response.cloud + "</b>");
         $(".zone").append("<b>" + response.zone + "</b>");
         $(".pod").append("<b>" + response.pod + "</b>");
+
+        $.ajaxSetup({
+            beforeSend: function (xhr)
+            {
+            xhr.setRequestHeader("warehouse_server", response.pod);
+            }
+        });
+
+        setupweb()
     }).fail(function(err) {
         console.error(err);
     });
 
-    $("#orderForm").submit(function(event){
-        const order = {
-            quantity: parseInt($("#orderForm #quantity").val()),
-            itemId: $("#orderForm #itemId").val()
-        };
-
-        $("#order-button").addClass("disabled").attr("disabled", true);
-
-        event.preventDefault();
-        const post_url = "/orders";
-        const request_method = "POST";
-        $.ajax({
-            url : post_url,
-            type: request_method,
-            data : JSON.stringify(order),
-            contentType: 'application/json',
-            cache: false
-        }).done(function(response){
-            $("#order-button").removeClass("disabled").removeAttr("disabled");
-            // alert("Order placed!");
-            $("#orderForm").trigger("reset");
-        }).fail(function(err) {
-            $("#order-result-message").append("<div class='alert alert-danger alert-dismissable'><button type='button' class='close' data-dismiss='alert' aria-label='Close'><span class='pficon pficon-close'></span></button><span class='pficon pficon-error-circle-o'></span><strong>Error</strong>" + err.responseText + "</div>");
-            $("#order-button").removeClass("disabled").removeAttr("disabled");
-            console.error(err);
-        });
-    });
-
-    $("#stockForm").submit(function(event){
-        const order = {
-            quantity: parseInt($("#stockForm #quantity").val()),
-            itemId: $("#stockForm #itemId").val()
-        };
-
-        $("#stock-button").addClass("disabled").attr("disabled", true);
-
-        event.preventDefault();
-        const post_url = "/warehouse/stocks";
-        const request_method = "POST";
-        $.ajax({
-            url : post_url,
-            type: request_method,
-            data : JSON.stringify(order),
-            contentType: 'application/json',
-            cache: false
-        }).done(function(response){
-            $("#stock-button").removeClass("disabled").removeAttr("disabled");
-            // alert("Stock incremented!");
-            $("#stockForm").trigger("reset");
-        }).fail(function(err) {
-            $("#stock-button").removeClass("disabled").removeAttr("disabled");
-            console.error(err);
-        });
-    });
-
-    let stocks = {};
-
-    $(function () {
-        $.ajax({
-            contentType: 'application/json',
-            type: "GET",
-            url: "/warehouse/stocks",
-            timeout: 30000, // wait no more than 30 seconds
-        }).done(function(response){
-            response.forEach(element => {
-                $("#stocksTable").append(stockLine(element));
-            });
-        }).fail(function(err) {
-            console.error(err);
-        });
-    });
-
-    function stockLine(event) {
-        stocks[event.itemId] = event;
-        const id = event.itemId;
-        const itemId = event.itemId;
-        const quantity = event.quantity;
-        return "<tr id='" + id + "'>" +
-            "<td>" + itemId + "</td>" +
-            "<td>" + quantity + "</td></tr>";
-    }
-
-    $(function () {
-        const source = new EventSource("/warehouse/status");
-        source.onmessage = function (e) {
-            if (e.data === "{}") {
-                return;
-            }
-            console.log(e);
-            let event = JSON.parse(e.data);
-            $("#eventsTable").prepend(line(event));
-            if (event.eventType === "STOCK") {
-                if (stocks[event.itemId] !== undefined){
-                    //update
-                    $("#stocksTable #"+event.itemId).replaceWith(stockLine(event));
-                } else {
-                    //append
-                    $("#stocksTable").prepend(stockLine(event));
-                }
-            }
-        };
-    });
-
-    function line(event) {
-        const id = event.eventId;
-        const eventType = event.eventType;
-        const itemId = event.itemId;
-        const quantity = event.quantity;
-        const processedBy = event.processedBy;
-        let message = "";
-        if (event.message) {
-            message = event.message;
-        }
-        return "<tr id='" + id + "'>" +
-            "<td>" + event.timestamp + "</td>" +
-            "<td>" + eventType + "</td>" +
-            "<td>" + itemId + "</td>" +
-            "<td>" + quantity + "</td>" +
-            "<td>" + processedBy + "</td>" +
-            "<td>" + message + "</td></tr>";
-    }
 </script>
 
 </html>
