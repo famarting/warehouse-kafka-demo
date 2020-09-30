@@ -35,13 +35,9 @@ spec:
           - name: MONGO_HOSTS
             value: mongo-database:27017
           - name: MONGO_TLS
-            value: false
+            value: 'false'
           - name: MONGO_TLS_INSECURE
-            value: false
-          - name: MONGO_REPLICASET
-            value: rs0
-          - name: MONGO_AUTHSOURCE
-            value: warehouse
+            value: 'false'
         readinessProbe:
           httpGet:
             path: /health/ready
@@ -56,7 +52,6 @@ spec:
           initialDelaySeconds: 1
           periodSeconds: 15
           timeoutSeconds: 7
-        terminationGracePeriodSeconds: 30
 ---
 apiVersion: v1
 kind: Service
@@ -74,16 +69,3 @@ spec:
   selector:
     app: ${SERVICE_NAME}
   type: ClusterIP
----
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  labels:
-    app: ${SERVICE_NAME}
-  name: ${SERVICE_NAME}
-  namespace: ${NAMESPACE}
-spec:
-  to:
-    kind: Service
-    name: ${SERVICE_NAME}
-    weight: 100
