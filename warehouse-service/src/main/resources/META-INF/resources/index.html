@@ -129,7 +129,10 @@
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/js/patternfly.min.js"></script>
+<script src="eventsource.js"></script>
 <script>
+
+    let warehouseServerHeader = "no_value"
 
     let setupweb = function () {
         $("#orderForm").submit(function(event){
@@ -231,36 +234,36 @@
         $(function () {
 
             //polling
-            let statusCall = function() {
-                $.ajax({
-                    type: "GET",
-                    url: "/warehouse/status/aaa",
-                    timeout: 10000, // wait no more than 30 seconds
-                }).done(function(data){
-                    console.log(data)
-                    data.forEach(event => {
-                        $("#eventsTable").prepend(line(event));
-                        if (event.eventType === "STOCK") {
-                            if (stocks[event.itemId] !== undefined){
-                                //update
-                                $("#stocksTable #"+event.itemId).replaceWith(stockLine(event));
-                            } else {
-                                //append
-                                $("#stocksTable").prepend(stockLine(event));
-                            }
-                        }
-                    })
-                }).fail(function(err) {
-                    console.error(err);
-                });
-            }
+            // let statusCall = function() {
+            //     $.ajax({
+            //         type: "GET",
+            //         url: "/warehouse/status/aaa",
+            //         timeout: 10000, // wait no more than 30 seconds
+            //     }).done(function(data){
+            //         console.log(data)
+            //         data.forEach(event => {
+            //             $("#eventsTable").prepend(line(event));
+            //             if (event.eventType === "STOCK") {
+            //                 if (stocks[event.itemId] !== undefined){
+            //                     //update
+            //                     $("#stocksTable #"+event.itemId).replaceWith(stockLine(event));
+            //                 } else {
+            //                     //append
+            //                     $("#stocksTable").prepend(stockLine(event));
+            //                 }
+            //             }
+            //         })
+            //     }).fail(function(err) {
+            //         console.error(err);
+            //     });
+            // }
 
-            statusCall()
-            setInterval(() => statusCall(), 2000)
+            // statusCall()
+            // setInterval(() => statusCall(), 2000)
             
 
             //sse
-            // const source = new EventSource("/warehouse/status");
+            // const source = new EventSource("/warehouse/ssestatus");
             // source.onmessage = function (e) {
             //     if (e.data === "{}") {
             //         return;
@@ -278,6 +281,31 @@
             //         }
             //     }
             // };
+
+            // SSE sending header
+            var source = new EventSource('/warehouse/ssestatus', {
+                headers: {
+                    'warehouse_server': warehouseServerHeader
+                }
+            });
+            source.onmessage = function (e) {
+                if (e.data === "{}") {
+                    return;
+                }
+                console.log(e);
+                let event = JSON.parse(e.data);
+                $("#eventsTable").prepend(line(event));
+                if (event.eventType === "STOCK") {
+                    if (stocks[event.itemId] !== undefined){
+                        //update
+                        $("#stocksTable #"+event.itemId).replaceWith(stockLine(event));
+                    } else {
+                        //append
+                        $("#stocksTable").prepend(stockLine(event));
+                    }
+                }
+            };
+
         });
 
         function line(event) {
@@ -309,7 +337,7 @@
         $(".cloudprovider").append("<b>" + response.cloud + "</b>");
         $(".zone").append("<b>" + response.zone + "</b>");
         $(".pod").append("<b>" + response.pod + "</b>");
-
+        warehouseServerHeader = response.pod
         $.ajaxSetup({
             beforeSend: function (xhr)
             {
