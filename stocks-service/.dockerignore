@@ -2,4 +2,4 @@
 !target/*-runner
 !target/*-runner.jar
 !target/lib/*
-!entrypoint.sh
+!target/quarkus-app/*
