@@ -35,3 +35,4 @@ nb-configuration.xml
 **/release.properties
 
 **/deployment_bundle/
+strimzi-*

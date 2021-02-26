@@ -12,11 +12,16 @@ container: build_jar container_build_jvm $(CONTAINER_TARGETS)
 
 container_native: build_native container_build_native $(CONTAINER_TARGETS)
 
+build:
+	mvn clean package
+
+publish: container_build_jvm $(CONTAINER_TARGETS)
+
 dev:
 	mvn compile quarkus:dev
 
 mvn_install:
-	mvn clean install -DskipTests
+	mvn clean install
 
 build_jar:
 	mvn clean

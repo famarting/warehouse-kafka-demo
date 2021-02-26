@@ -5,6 +5,10 @@ SERVICES = orders-service stocks-service warehouse-service
 
 container: common $(SERVICES) 
 
+build: common $(SERVICES)
+
+publish: $(SERVICES)
+
 common:
 	$(MAKE) -C warehouse-common mvn_install
 
