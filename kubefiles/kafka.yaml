@@ -5,7 +5,7 @@ metadata:
   name: warehouse-kafka
 spec:
   kafka:
-    version: 2.4.0
+    version: 2.6.0
     replicas: 1
     listeners:
       plain: {}
@@ -14,16 +14,16 @@ spec:
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
       transaction.state.log.min.isr: 1
-      log.message.format.version: "2.4"
+      log.message.format.version: "2.6"
     storage:
       type: persistent-claim
-      size: 10Gi
+      size: 2Gi
       deleteClaim: true
   zookeeper:
     replicas: 1
     storage:
       type: persistent-claim
-      size: 10Gi
+      size: 2Gi
       deleteClaim: true
   entityOperator:
     topicOperator: {}
@@ -39,9 +39,6 @@ spec:
   partitions: 1
   replicas: 1
   topicName: orders
-  # config:
-  #   retention.ms: 7200000
-  #   segment.bytes: 1073741824
 ---
 apiVersion: kafka.strimzi.io/v1beta1
 kind: KafkaTopic
@@ -53,9 +50,6 @@ spec:
   partitions: 1
   replicas: 1
   topicName: processed-orders
-  # config:
-  #   retention.ms: 7200000
-  #   segment.bytes: 1073741824
 ---
 apiVersion: kafka.strimzi.io/v1beta1
 kind: KafkaTopic
@@ -67,6 +61,3 @@ spec:
   partitions: 1
   replicas: 1
   topicName: events
-  # config:
-  #   retention.ms: 7200000
-  #   segment.bytes: 1073741824
