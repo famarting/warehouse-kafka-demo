@@ -28,7 +28,7 @@ jobs:
           architecture: x64
 
       - name: Build all
-        run: make build
+        run: mvn install
 
       - name: Login to quay.io
         if: github.event_name == 'push'
