@@ -1,0 +1,15 @@
+kind: App
+apiVersion: appctl.io/v1
+metadata:
+  name: warehouse-common
+  annotations:
+    description: warehouse-common description
+    author: Fabian Martinez
+    organization: famargon
+spec:
+  template: maven
+  # #this is redundant, but it's here just for showcasing, template maven brings install recipe, and build recipe executes install recipe
+  # recipes:
+  #   build:
+  #     - template: maven
+  #       recipe: install

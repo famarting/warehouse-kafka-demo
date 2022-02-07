@@ -9,6 +9,8 @@ public class StockRecord implements Comparable<StockRecord>{
     private Integer quantity;
     private String action;
 
+    private String stockRecordId;
+
     private String timestamp;
     private String error;
     private String message;
@@ -37,6 +39,14 @@ public class StockRecord implements Comparable<StockRecord>{
 
     public void setAction(String action) {
         this.action = action;
+    }
+
+    public String getStockRecordId() {
+        return stockRecordId;
+    }
+
+    public void setStockRecordId(String stockRecordId) {
+        this.stockRecordId = stockRecordId;
     }
 
     public String getTimestamp() {

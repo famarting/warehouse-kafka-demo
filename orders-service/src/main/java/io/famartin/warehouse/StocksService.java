@@ -1,5 +1,6 @@
 package io.famartin.warehouse;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -34,6 +35,7 @@ public class StocksService {
  
     private Uni<StockRecord> send(String requestId, String itemId, int quantity, String action) {
         StockRecord record = new StockRecord();
+        record.setStockRecordId(UUID.randomUUID().toString());
         record.setItemId(itemId);
         record.setQuantity(quantity);
         record.setAction(action);

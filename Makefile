@@ -35,10 +35,10 @@ login_container_registry:
 endif
 
 install-strimzi:
-	wget https://github.com/strimzi/strimzi-kafka-operator/releases/download/0.18.0/strimzi-cluster-operator-0.18.0.yaml
+	wget https://github.com/strimzi/strimzi-kafka-operator/releases/download/0.20.0/strimzi-cluster-operator-0.20.0.yaml
 	oc new-project warehouse | true
-	sed -i 's/namespace: .*/namespace: warehouse/' strimzi-cluster-operator-0.18.0.yaml
-	kubectl apply -f strimzi-cluster-operator-0.18.0.yaml -n warehouse
+	sed -i 's/namespace: .*/namespace: warehouse/' strimzi-cluster-operator-0.20.0.yaml
+	kubectl apply -f strimzi-cluster-operator-0.20.0.yaml -n warehouse
 
 release:
 	cp deployment_bundle/* kubefiles/

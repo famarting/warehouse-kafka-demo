@@ -1,0 +1,17 @@
+kind: App
+apiVersion: appctl.io/v1
+metadata:
+  name: orders-service-kafka
+  annotations:
+    description: orders-service description
+    author: Fabian Martinez
+    organization: famargon
+spec:
+  template: quarkus-jvm
+  vars:
+    - name: CONTAINER_IMAGE_TAG
+      value: latest
+  recipes:
+    push: 
+      - template: docker
+        recipe: push

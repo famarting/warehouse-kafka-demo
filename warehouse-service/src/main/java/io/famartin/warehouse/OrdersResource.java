@@ -2,6 +2,7 @@ package io.famartin.warehouse;
 
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -17,6 +18,8 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 
 import io.famartin.warehouse.common.EventsService;
 import io.famartin.warehouse.common.OrderRecord;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.vertx.core.json.JsonObject;
 
 @Path("/orders")
@@ -29,6 +32,16 @@ public class OrdersResource {
     @Inject
     EventsService events;
 
+    Counter newOrdersCounter;
+
+    @Inject
+    private MeterRegistry registry;
+ 
+    @PostConstruct
+    public void createCounter() { 
+        newOrdersCounter = Counter.builder("warehouse.orders.created").register(registry);
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -36,6 +49,7 @@ public class OrdersResource {
         order.setOrderId(UUID.randomUUID().toString());
         if(isValid(order)) {
             orders.send(order);
+            newOrdersCounter.increment();
             events.sendEvent(String.format("Order %s enqueued", order.getOrderId()));
             return Response.ok(order).build();
         } else {

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.CompletionStage;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import io.famartin.warehouse.common.EventsService;
 import io.famartin.warehouse.common.OrderRecord;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.smallrye.mutiny.Uni;
 
 /**
@@ -37,6 +40,18 @@ public class OrdersService {
     @Channel("processed-orders")
     Emitter<OrderRecord>  processedOrders;
 
+    Counter successfulOrdersCounter;
+    Counter failedOrdersCounter;
+
+    @Inject
+    private MeterRegistry registry;
+ 
+    @PostConstruct
+    public void createCounters() { 
+        successfulOrdersCounter = Counter.builder("warehouse.orders.success").register(registry);
+        failedOrdersCounter = Counter.builder("warehouse.orders.failed").register(registry);
+    }
+
     @Incoming("orders")
     public Uni<Void> processOrder(OrderRecord order) {
         events.sendEvent("Processing order "+order.getOrderId());
@@ -55,6 +70,11 @@ public class OrdersService {
                     order.setReason(result.getMessage());
                 }
                 processedOrders.send(order);
+                if (order.getApproved()) {
+                    successfulOrdersCounter.increment();
+                } else {
+                    failedOrdersCounter.increment();
+                }
                 events.sendEvent("Order " + order.getOrderId() + " processed");
                 return null;
             });

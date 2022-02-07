@@ -55,6 +55,7 @@ public class StocksResource {
             int quantity = request.getQuantity();
             try{
                 StockRecord response = new StockRecord();
+                response.setStockRecordId(request.getStockRecordId());
                 switch (StockAction.valueOf(action)) {
                     case ADD:
                         Integer newStock = stocksStorage.addStock(itemId, quantity);

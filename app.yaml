@@ -1,0 +1,31 @@
+kind: App
+apiVersion: appctl.io/v1
+metadata:
+  name: warehouse-kafka-demo
+  annotations:
+    author: Fabian Martinez
+    description: warehouse-kafka-demo description
+    organization: famargon
+spec:
+  recipes:
+    build:
+      - name: build-prerequisites
+        apps: 
+          - warehouse-common
+        template: appctl
+        recipe: install
+      - name: build-microservices
+        apps:
+          - warehouse-service-kafka
+          - stocks-service-kafka
+          - orders-service-kafka
+        template: appctl
+        recipes: 
+          - build
+          - push
+
+
+
+
+          
+

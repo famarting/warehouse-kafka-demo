@@ -1,0 +1,17 @@
+kind: App
+apiVersion: appctl.io/v1
+metadata:
+  name: warehouse-service-kafka
+  annotations:
+    description: warehouse-service description
+    author: Fabian Martinez
+    organization: famargon
+spec:
+  template: quarkus-jvm
+  vars:
+    - name: CONTAINER_IMAGE_TAG
+      value: latest
+  recipes:
+    push: 
+      - template: docker
+        recipe: push

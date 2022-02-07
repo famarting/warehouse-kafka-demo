@@ -36,3 +36,4 @@ nb-configuration.xml
 
 **/deployment_bundle/
 strimzi-*
+container-image
